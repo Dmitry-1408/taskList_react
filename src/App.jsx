@@ -1,6 +1,9 @@
 import { useState } from "react";
 
 function App() {
+  /* пустой массив который будет заполняться автоматически */
+  const [tasks, setTasks] = useState([]);
+
   /* useState на закрытие крестиком */
   const [openSection, setOpenSection] = useState({
     tasklist: false,
@@ -12,6 +15,13 @@ function App() {
   function toggleSection(section) {
     setOpenSection((prev) => ({ ...prev, [section]: !prev[section] }));
   }
+
+  /* функция которая будет правильно формировать массив */
+  function addTask(task) {
+    setTasks([...tasks, { ...task, completed: false, id: Date.now() }]);
+  }
+
+  console.log(tasks);
 
   /* логика работы приложения */
   return (
@@ -26,7 +36,7 @@ function App() {
           +
         </button>
         {/* при нажатии на крестик открытие/закрытие */}
-        {openSection.tasklist && <TaskForm />}
+        {openSection.tasklist && <TaskForm addTask={addTask} />}
       </div>
 
       {/* 2 task */}
@@ -55,7 +65,6 @@ function App() {
           +
         </button>
         {openSection.complitedTasks && <CompletedTaskList />}
-        
       </div>
 
       {/* footer */}
@@ -65,16 +74,43 @@ function App() {
 }
 
 /* 1 task */
-function TaskForm() {
+function TaskForm({ addTask }) {
+  /* создание массива task из формы */
+  const [title, setTitle] = useState("");
+  const [priority, setPriority] = useState("Low");
+  const [deadLine, setDeadLine] = useState("");
+
+  /* функция отправки формы */
+  function handleSubmit(e) {
+    e.preventDefault(); /*  отменяет стандартную отправку формы */
+    if (title.trim() && deadLine) {
+      addTask({ title, priority, deadLine });
+    } /* отправляет в массив */
+    setTitle("");
+    setPriority("Low");
+    setDeadLine("");
+  }
+
   return (
-    <form action="" className="task-form">
-      <input type="text" value={""} placeholder="Task title" required />
-      <select value={""}>
+    <form action="" className="task-form" onSubmit={handleSubmit}>
+      <input
+        type="text"
+        value={title}
+        placeholder="Task title"
+        required
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <select value={priority} onChange={(e) => setPriority(e.target.value)}>
         <option value="High">High</option>
         <option value="Medium">Medium</option>
         <option value="Lov">Lov</option>
       </select>
-      <input type="datetime-local" value={""} required />
+      <input
+        type="datetime-local"
+        value={deadLine}
+        required
+        onChange={(e) => setDeadLine(e.target.value)}
+      />
       <button type="submit">Add task</button>
     </form>
   );
