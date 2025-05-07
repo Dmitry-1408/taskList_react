@@ -23,6 +23,9 @@ function App() {
 
   console.log(tasks);
 
+  const activeTasks = tasks.filter((task) => !task.complited);
+  const complitedTasks = tasks.filter((task) => task.complited);
+
   /* логика работы приложения */
   return (
     <div className="app">
@@ -52,7 +55,7 @@ function App() {
           <button className="sort-button">By Date</button>
           <button className="sort-button">By Priority</button>
         </div>
-        {openSection.task && <TaskList />}
+        {openSection.task && <TaskList activeTasks={activeTasks} />}
       </div>
 
       {/* 3 task */}
@@ -103,7 +106,7 @@ function TaskForm({ addTask }) {
       <select value={priority} onChange={(e) => setPriority(e.target.value)}>
         <option value="High">High</option>
         <option value="Medium">Medium</option>
-        <option value="Lov">Lov</option>
+        <option value="Low">Low</option>
       </select>
       <input
         type="datetime-local"
@@ -117,10 +120,13 @@ function TaskForm({ addTask }) {
 }
 
 /* 2 task */
-function TaskList() {
+function TaskList({ activeTasks }) {
+  console.log(activeTasks);
   return (
     <ul className="task-list">
-      <TaskItem />
+      {activeTasks.map((task) => (
+        <TaskItem task={task} key={task.id}/>
+      ))}
     </ul>
   );
 }
@@ -129,19 +135,23 @@ function TaskList() {
 function CompletedTaskList() {
   return (
     <ul className="completed-task-list">
-      <TaskItem />
+      {/* <TaskItem /> */}
     </ul>
   );
 }
 
-function TaskItem() {
+function TaskItem({ task }) {
+  const { title, priority, deadLine, id } = task;
+
   return (
-    <li className="task-item">
+    <li className={`task-item ${priority.toLowerCase()}`}>
       <div className="task-info">
         <div>
-          Title <strong>Medium</strong>
+          {title} <strong>{priority}</strong>
         </div>
-        <div className="task-deadline">Due: {new Date().toLocaleString()}</div>
+        <div className="task-deadline">
+          Due: {new Date(deadLine).toLocaleString()}
+        </div>
       </div>
       <div className="task-buttons">
         <button className="complete-button">Complete</button>
