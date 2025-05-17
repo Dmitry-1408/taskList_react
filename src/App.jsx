@@ -3,7 +3,10 @@ import { useState } from "react";
 function App() {
   /* пустой массив который будет заполняться автоматически */
   const [tasks, setTasks] = useState([]);
-
+  /* сортировка по типу */
+  const [sortType, setSortType] = useState("date"); //priority
+  /* сортировка по дате */
+  const [sortOrder, setSortOrder] = useState("asc"); //desc (asc возрастание, desc убывание)
   /* useState на закрытие крестиком */
   const [openSection, setOpenSection] = useState({
     tasklist: false,
@@ -35,12 +38,33 @@ function App() {
     );
   }
 
-  console.log(tasks);
+  function sortTask(tasks) {
+    return tasks.slice().sort((a, b) => {
+      if (sortType === "priority") {
+        const priorityOrder = { High: 1, Medium: 2, Low: 3 };
+        return sortOrder == "asc"
+          ? priorityOrder[a.priority] - priorityOrder[b.priority]
+          : priorityOrder[b.priority] - priorityOrder[a.priority];
+      } else {
+        return sortOrder === "asc"
+          ? new Date(a.deadLine) - new Date(b.deadLine)
+          : new Date(b.deadLine) - new Date(a.deadLine);
+      }
+    });
+  }
 
-  const activeTasks = tasks.filter((task) => !task.complited);
+  /* функция сортировки */
+  function toggleSortOrder(type) {
+    if (sortType === type) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortType(type);
+      setSortOrder("asc");
+    }
+  }
+
+  const activeTasks = sortTask(tasks.filter((task) => !task.complited));
   const complitedTasks = tasks.filter((task) => task.complited);
-
-  console.log(complitedTasks);
 
   /* логика работы приложения */
   return (
@@ -68,8 +92,21 @@ function App() {
           +
         </button>
         <div className="sort-controls">
-          <button className="sort-button">By Date</button>
-          <button className="sort-button">By Priority</button>
+          <button
+            className={`sort-button ${sortType === "date" ? "active" : ""}`}
+            onClick={() => toggleSortOrder("date")}
+          >
+            By Date{" "}
+            {sortType === "date" && (sortOrder === "asc" ? "\u2191" : "\u2193")}
+          </button>
+          <button
+            className={`sort-button ${sortType === "priority" ? "active" : ""}`}
+            onClick={() => toggleSortOrder("priority")}
+          >
+            By Priority{" "}
+            {sortType === "priority" &&
+              (sortOrder === "asc" ? "\u2191" : "\u2193")}
+          </button>
         </div>
         {openSection.task && (
           <TaskList
